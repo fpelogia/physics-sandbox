@@ -1,19 +1,19 @@
 #include "raylib.h"
 #include "resource_dir.h"
+#include <array>
 
-#define WIN_WIDTH 1280
-#define WIN_HEIGHT 800
-
-Color COLOR[] = {WHITE, YELLOW, RED, GREEN, MAGENTA, BLUE};
+constexpr int WIN_WIDTH = 1280;
+constexpr int WIN_HEIGHT = 800;
+std::array<Color, 6> COLOR = {WHITE, YELLOW, RED, GREEN, MAGENTA, BLUE};
 int color_index = 0;
 
 // ================================================
 
 void initializeStuff();
 void changeTitleColor();
-void handleInputs(Vector2* pos, Vector2* vel, Vector2* acc);
+void handleInputs(Texture& wabbit, Vector2& pos, Vector2& vel, Vector2& acc);
 void drawStuff(Texture wabbit, Vector2 pos, Vector2 vel, Vector2 acc);
-void updatePhysics(Texture wabbit, Vector2 *pos, Vector2 *vel, Vector2 *acc);
+void updatePhysics(Texture& wabbit, Vector2& pos, Vector2& vel, Vector2& acc);
 
 // ================================================
 
@@ -36,11 +36,11 @@ int main ()
 	{
 		BeginDrawing();		
 			
-			handleInputs(&pos, &vel, &acc);
+			handleInputs(wabbit, pos, vel, acc);
 
 			drawStuff(wabbit, pos, vel, acc);
 
-			updatePhysics(wabbit, &pos, &vel, &acc);
+			updatePhysics(wabbit, pos, vel, acc);
 	
 		EndDrawing();
 	}
@@ -62,20 +62,24 @@ void changeTitleColor(){
 	color_index = (color_index + 1) % 6;
 }
 
-void handleInputs(Vector2* pos, Vector2* vel, Vector2* acc){
+void handleInputs(Texture& wabbit, Vector2& pos, Vector2& vel, Vector2& acc){
 	
 	if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)){
-		(*pos) = GetMousePosition();
-		pos->y = WIN_HEIGHT - pos->y;
-		vel->x = 0;
-		vel->y = 0;
+
+		// Set texture center to mouse position
+		pos = GetMousePosition();
+		pos.x -= wabbit.width/2;
+		pos.y = WIN_HEIGHT - pos.y + wabbit.height/2;
+		
+		// Set velocity to zero while dragging
+		vel.x = 0;
+		vel.y = 0;
 
 	}else if(IsMouseButtonReleased(MOUSE_BUTTON_LEFT)){
-
-		float drag_duration = GetGestureHoldDuration();
+		// Get mouse dragging direction
 		Vector2 mouse_drag_vec = GetMouseDelta();
-		vel->x = mouse_drag_vec.x;
-		vel->y = -1 * mouse_drag_vec.y;
+		vel.x = mouse_drag_vec.x;
+		vel.y = -1 * mouse_drag_vec.y;
 	}
 
 	if(IsKeyUp(KEY_Y)){
@@ -95,43 +99,43 @@ void drawStuff(Texture wabbit, Vector2 pos, Vector2 vel, Vector2 acc){
 	DrawTexture(wabbit, pos.x, WIN_HEIGHT - pos.y, WHITE);
 }
 
-void updatePhysics(Texture wabbit, Vector2 *pos, Vector2 *vel, Vector2 *acc){
-	pos->x = pos->x + vel->x;
-	pos->y = pos->y + vel->y;
+void updatePhysics(Texture& wabbit, Vector2& pos, Vector2& vel, Vector2& acc){
+	pos.x = pos.x + vel.x;
+	pos.y = pos.y + vel.y;
 	
-	vel->x = vel->x + acc->x;
-	vel->y = vel->y + acc->y;
+	vel.x = vel.x + acc.x;
+	vel.y = vel.y + acc.y;
 
-	if(pos->x >= WIN_WIDTH - wabbit.width){
-		pos->x = WIN_WIDTH - wabbit.width;
-		vel->x = -1 * vel->x;
+	if(pos.x >= WIN_WIDTH - wabbit.width){
+		pos.x = WIN_WIDTH - wabbit.width;
+		vel.x = -1 * vel.x;
 
 		changeTitleColor();		
 	}
-	if(pos->x <= 0){
-		pos->x = 0;
-		vel->x = -1*vel->x;
+	if(pos.x <= 0){
+		pos.x = 0;
+		vel.x = -1*vel.x;
 
 		changeTitleColor();
 	}
 
-	if(pos->y >= 800){
-		pos->y = 800;
+	if(pos.y >= 800){
+		pos.y = 800;
 
 		// Inelastic collision (40% of loss)
-		vel->y = -0.6 * vel->y;
+		vel.y = -0.6 * vel.y;
 
 		changeTitleColor();
 	}
 	
-	if(pos->y <= wabbit.height){
-		pos->y = wabbit.height;
+	if(pos.y <= wabbit.height){
+		pos.y = wabbit.height;
 
 		// Inelastic collision (40% of loss)
-		vel->y = -0.6 * vel->y;
+		vel.y = -0.6 * vel.y;
 
 		// Friction (10% loss)
-		vel->x = 0.9 * vel->x;
+		vel.x = 0.9 * vel.x;
 		
 		changeTitleColor();
 	}
