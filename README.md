@@ -1,5 +1,7 @@
 # Physics Sandbox
 
+## [CLICK HERE TO PLAY!! 🐭 ](build_web/)
+
 ## Instructions
 ### Linux
 * CD into the build folder

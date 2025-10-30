@@ -1,6 +1,6 @@
 #!/bin/bash
 cd build_web
-emcc ../src/main.c -o index.html \
+emcc ../src/main.cpp -o index.html \
   -I../include \
   -I../build/external/raylib-master/src \
   ../build/external/raylib-master/build_web/raylib/libraylib.a \
