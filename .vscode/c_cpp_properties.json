@@ -6,7 +6,8 @@
                 "${workspaceFolder}/build/external/raylib-master/src/**",
                 "${workspaceFolder}/include/**",
                 "${workspaceFolder}/src/**",
-                "/opt/homebrew/Cellar/raylib/5.5/include"
+                "/opt/homebrew/Cellar/raylib/5.5/include",
+                "/opt/homebrew/Cellar/eigen/3.4.1/include"
             ],
             "defines": [
                 "_DEBUG",
@@ -25,7 +26,9 @@
                 "${workspaceFolder}/build/external/raylib-master/src/**",
                 "${workspaceFolder}/include/**",
                 "${workspaceFolder}/src/**",
-                "/opt/homebrew/Cellar/raylib/5.5/include"
+                "/opt/homebrew/Cellar/raylib/5.5/include",
+                "/opt/homebrew/Cellar/eigen/3.4.1/include",
+                "/opt/homebrew/Cellar/eigen/3.4.1/include/eigen3"
             ],
             "defines": [
                 "_DEBUG",
@@ -50,7 +53,8 @@
                 "${workspaceFolder}/build/external/raylib-master/src/**",
                 "${workspaceFolder}/include/**",
                 "${workspaceFolder}/src/**",
-                "/opt/homebrew/Cellar/raylib/5.5/include"                
+                "/opt/homebrew/Cellar/raylib/5.5/include",
+                "/opt/homebrew/Cellar/eigen/3.4.1/include/eigen3"
             ],
             "defines": [
                 "_DEBUG",
@@ -63,7 +67,6 @@
             "cStandard": "c17",
             "cppStandard": "c++17",
             "intelliSenseMode": "clang-x64"
-
         }
     ],
     "version": 4

@@ -1,9 +1,12 @@
 #include "raylib.h"
 #include "resource_dir.h"
+#include "solver.hpp"
+#include <iostream>
 #include <array>
 
 constexpr int WIN_WIDTH = 1280;
 constexpr int WIN_HEIGHT = 800;
+constexpr double TIME_SCALE = 10;
 std::array<Color, 6> COLOR = {WHITE, YELLOW, RED, GREEN, MAGENTA, BLUE};
 int color_index = 0;
 
@@ -11,10 +14,11 @@ int color_index = 0;
 
 void initializeStuff();
 void changeTitleColor();
-void handleInputs(Texture& wabbit, Vector2& pos, Vector2& vel, Vector2& acc);
+void handleInputs(Texture& wabbit, Vector2& pos, Vector2& vel, Vector2& acc, double& t);
 void drawStuff(Texture wabbit, Vector2 pos, Vector2 vel, Vector2 acc);
 void updatePhysics(Texture& wabbit, Vector2& pos, Vector2& vel, Vector2& acc);
 
+std::vector<double> dy_dt (double t, std::vector<double> y);
 // ================================================
 
 int main ()
@@ -29,18 +33,50 @@ int main ()
 	// Position, Velocity, Acceleration vectors
 	Vector2 pos = {WIN_WIDTH/2, WIN_HEIGHT/2};
 	Vector2 vel = {5, 6};
-	Vector2 acc = {0, -0.05};
+	Vector2 acc = {0, -9.8};
 
+	
+	double h = GetFrameTime();
+	
+	// Instantiate ODE solver
+	Euler solver;
+	std::vector<double> y0 = {
+		vel.x, vel.y, pos.x, pos.y
+	};
+	double t = 1; // T0 = 1
+	
 	// Main Loop
 	while (!WindowShouldClose())
 	{
-		BeginDrawing();		
+		BeginDrawing();
 			
-			handleInputs(wabbit, pos, vel, acc);
+			handleInputs(wabbit, pos, vel, acc, t);
 
 			drawStuff(wabbit, pos, vel, acc);
 
 			updatePhysics(wabbit, pos, vel, acc);
+
+			h = TIME_SCALE * GetFrameTime();
+
+			y0 = {
+				vel.x, vel.y, pos.x, pos.y
+			};
+
+			std::vector<double> y = solver.solveIvpStep(dy_dt, t, y0, h);
+
+			/*
+			for(int dim = 0; dim < y.size(); dim++){
+				std::cout << dim << ": y[" << t / TIME_SCALE << "] = " << y[dim] << std::endl;
+			}
+			std::cout << std::endl;
+			*/
+
+			vel.x = y[0];
+			vel.y = y[1];
+			pos.x = y[2];
+			pos.y = y[3];
+
+			t = t + h;
 	
 		EndDrawing();
 	}
@@ -52,6 +88,15 @@ int main ()
 
 // ================================================
 
+std::vector<double> dy_dt (double t, std::vector<double> y){
+    return {
+		0,
+		-9.8,
+		y.at(0),
+		y.at(1),
+	};
+}
+
 void initializeStuff(){
 	InitWindow(WIN_WIDTH, WIN_HEIGHT, "Physics Sandbox");
 	SetTargetFPS(60);
@@ -62,7 +107,7 @@ void changeTitleColor(){
 	color_index = (color_index + 1) % 6;
 }
 
-void handleInputs(Texture& wabbit, Vector2& pos, Vector2& vel, Vector2& acc){
+void handleInputs(Texture& wabbit, Vector2& pos, Vector2& vel, Vector2& acc, double& t){
 	
 	if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)){
 
@@ -74,6 +119,8 @@ void handleInputs(Texture& wabbit, Vector2& pos, Vector2& vel, Vector2& acc){
 		// Set velocity to zero while dragging
 		vel.x = 0;
 		vel.y = 0;
+
+		t = 0;
 
 	}else if(IsMouseButtonReleased(MOUSE_BUTTON_LEFT)){
 		// Get mouse dragging direction
@@ -95,16 +142,15 @@ void drawStuff(Texture wabbit, Vector2 pos, Vector2 vel, Vector2 acc){
 	DrawText(TextFormat("Velocity - x: %.3f  y: %.3f", vel.x, vel.y), 50, WIN_HEIGHT - 70, 18, GREEN);
 	DrawText(TextFormat("Acceleration - x: %.3f  y: %.3f", acc.x, acc.y), 50, WIN_HEIGHT - 50, 18, GREEN);
 
+	if(TIME_SCALE > 1){
+		DrawText(TextFormat("Time Speedup: %.1fx", TIME_SCALE), WIN_WIDTH - 250, WIN_HEIGHT - 50, 18, GREEN);
+	}
+
 	// Draw "Character"
 	DrawTexture(wabbit, pos.x, WIN_HEIGHT - pos.y, WHITE);
 }
 
 void updatePhysics(Texture& wabbit, Vector2& pos, Vector2& vel, Vector2& acc){
-	pos.x = pos.x + vel.x;
-	pos.y = pos.y + vel.y;
-	
-	vel.x = vel.x + acc.x;
-	vel.y = vel.y + acc.y;
 
 	if(pos.x >= WIN_WIDTH - wabbit.width){
 		pos.x = WIN_WIDTH - wabbit.width;
