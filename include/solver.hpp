@@ -14,17 +14,21 @@ public:
         y(t0) = y0
     */
     virtual std::vector<std::vector<double>> solveIvp(
-        const std::function<std::vector<double>(double, std::vector<double>)>& F,
+        const std::function<std::vector<double>(double, std::vector<double>, std::vector<double>)>& F,
         double t0,
         double t_f,
         std::vector<double> y0,
-        double h) = 0;
+        double h,
+        std::vector<double> params
+    ) = 0;
 
     virtual std::vector<double> solveIvpStep(
-        const std::function<std::vector<double>(double, std::vector<double>)>& F,
+        const std::function<std::vector<double>(double, std::vector<double>, std::vector<double>)>& F,
         double t,
         std::vector<double> y,
-        double h) = 0;
+        double h,
+        std::vector<double> params
+    ) = 0;
 
     virtual ~Solver() = default; // Virtual destructor
 };
@@ -34,17 +38,21 @@ class Euler : public Solver
 {
 public:
     std::vector<std::vector<double>> solveIvp(
-        const std::function<std::vector<double>(double, std::vector<double>)>& F,
+        const std::function<std::vector<double>(double, std::vector<double>, std::vector<double>)>& F,
         double t0,
         double t_f,
         std::vector<double> y0,
-        double h) override;
+        double h,
+        std::vector<double> params
+    ) override;
 
     std::vector<double> solveIvpStep(
-        const std::function<std::vector<double>(double, std::vector<double>)>& F,
+        const std::function<std::vector<double>(double, std::vector<double>, std::vector<double>)>& F,
         double t,
         std::vector<double> y,
-        double h) override;
+        double h,
+        std::vector<double> params
+    ) override;
 };
 
 #endif // SOLVER_H

@@ -2,11 +2,13 @@
 #include <iostream>
 
 std::vector<std::vector<double>> Euler::solveIvp(
-    const std::function<std::vector<double>(double, std::vector<double>)>& F,
+    const std::function<std::vector<double>(double, std::vector<double>, std::vector<double>)>& F,
     double t0,
     double t_f,
     std::vector<double> y0,
-    double h)
+    double h,
+    std::vector<double> params
+)
 {
     /*
         Solves the IVP
@@ -22,7 +24,7 @@ std::vector<std::vector<double>> Euler::solveIvp(
     
     while (t <= t_f)
     {
-        y = solveIvpStep(F, t, y, h);
+        y = solveIvpStep(F, t, y, h, params);
         y_values.push_back(y);
         t = t + h;
     }
@@ -31,10 +33,12 @@ std::vector<std::vector<double>> Euler::solveIvp(
 }
 
 std::vector<double> Euler::solveIvpStep(
-    const std::function<std::vector<double>(double, std::vector<double>)>& F,
+    const std::function<std::vector<double>(double, std::vector<double>, std::vector<double>)>& F,
     double t,
     std::vector<double> y,
-    double h)
+    double h,
+    std::vector<double> params
+)
     {
 
     int N_DIMENSIONS = y.size();
@@ -42,7 +46,7 @@ std::vector<double> Euler::solveIvpStep(
     std::vector<double> y_new = {}; 
     y_new.resize(N_DIMENSIONS);
 
-    std::vector<double> F_t_y = F(t, y);
+    std::vector<double> F_t_y = F(t, y, params);
 
     for(int i = 0; i < N_DIMENSIONS; i++){
         /*

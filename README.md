@@ -8,12 +8,14 @@
 * run `./premake5 gmake`
 * CD back to the root
 * run `make`
+* run `./bin/Debug/physics-sandbox`
 
 ### MacOS Users
 * CD into the build folder
 * run `./premake5.osx gmake`
 * CD back to the root
 * run `make`
+* run `./bin/Debug/physics-sandbox`
 
 ### Build for Web
 * make sure you have emscripten

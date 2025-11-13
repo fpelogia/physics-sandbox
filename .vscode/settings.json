@@ -47,6 +47,8 @@
 		"typeinfo": "cpp",
 		"algorithm": "cpp",
 		"functional": "cpp",
-		"iostream": "cpp"
+		"iostream": "cpp",
+		"variant": "cpp",
+		"cwctype": "cpp"
 	}
 }
