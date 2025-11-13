@@ -196,6 +196,9 @@ if (downloadRaylib) then
         includedirs { "../src" }
         includedirs { "../include" }
 
+        -- include Eigen installed by Homebrew
+        includedirs { "/opt/homebrew/Cellar/eigen/3.4.1/include/eigen3" }
+
         links {"raylib"}
 
         cdialect "C17"
