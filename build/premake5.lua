@@ -175,8 +175,9 @@ if (downloadRaylib) then
         filter "action:vs*"
             debugdir "$(SolutionDir)"
 
-        filter {"action:gmake*"} -- Uncoment if you need to force StaticLib
---          buildoptions { "-static" }
+        filter "action:gmake*"
+            buildoptions { "-Wno-deprecated-enum-compare-conditional" }
+
         filter{}
 
         vpaths 
@@ -201,8 +202,8 @@ if (downloadRaylib) then
 
         links {"raylib"}
 
-        cdialect "C17"
-        cppdialect "C++17"
+        cdialect "C23"
+        cppdialect "C++23"
 
         includedirs {raylib_dir .. "/src" }
         includedirs {raylib_dir .."/src/external" }

@@ -49,6 +49,9 @@
 		"functional": "cpp",
 		"iostream": "cpp",
 		"variant": "cpp",
-		"cwctype": "cpp"
-	}
+		"cwctype": "cpp",
+		"format": "cpp",
+		"ratio": "cpp"
+	},
+	"C_Cpp.default.compilerPath": "/usr/bin/g++"
 }

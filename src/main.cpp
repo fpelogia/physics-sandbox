@@ -1,9 +1,13 @@
 #include "raylib.h"
 #include "resource_dir.h"
 #include "solver.hpp"
+#define RAYGUI_IMPLEMENTATION
+#include "raygui.h"
 #include <iostream>
 #include <cmath>
+#include <string>
 #include <array>
+#include <format>
 
 constexpr int WIN_WIDTH = 1280;
 constexpr int WIN_HEIGHT = 800;
@@ -11,12 +15,31 @@ double TIME_SCALE = 1;
 std::array<Color, 6> COLOR = {WHITE, YELLOW, RED, GREEN, MAGENTA, BLUE};
 int color_index = 0;
 
+std::string diff_equation_latex = R"(
+	\frac{d\mathbf{y}}{dt} =
+	\begin{bmatrix}
+	- k\, y_0 \sqrt{y_0^2 + y_1^2} \\\\
+	- 300 - k\, y_1 \sqrt{y_1^2 + y_0^2} \\\\
+	y_0 \\\\
+	y_1
+	\end{bmatrix}
+)";
+
+Texture diff_equation;
+
+int dropdownActive = 0;
+bool dropDownEditMode = false;
+Rectangle dropdownRect = {10, 5, 200, 30};
+std::string simulationList = "Mechanical;Electrical;Fluid Mechanics";
+std::vector<std::string> simulationName = {"Mechanical", "Electrical", "Fluid Mechanics"};
+
 Vector2 acc;
 
 // ================================================
 
 void initializeStuff();
 void changeTitleColor();
+void updateEquation();
 void handleInputs(Texture& wabbit, Vector2& pos, Vector2& vel, double& t, double& k);
 void drawStuff(Texture wabbit, Vector2 pos, Vector2 vel, double& t, double& k);
 void updatePhysics(Texture& wabbit, Vector2& pos, Vector2& vel);
@@ -37,6 +60,8 @@ int main ()
 	Vector2 pos = {WIN_WIDTH/2, WIN_HEIGHT/2};
 	Vector2 vel = {10, 12};
 
+	updateEquation();
+	
 	double k = 0.005;
 	
 	double h = GetFrameTime();
@@ -109,14 +134,26 @@ void initializeStuff(){
 	InitWindow(WIN_WIDTH, WIN_HEIGHT, "Physics Sandbox");
 	SetTargetFPS(60);
 	SearchAndSetResourceDir("resources");
+	GuiLoadStyle("styles/style_terminal.rgs");
 }
 
 void changeTitleColor(){
 	color_index = (color_index + 1) % 6;
 }
 
+void updateEquation(){
+	std::string cmd = std::string("../include/TextToTeX/TextToTeX.sh -vt \"") + diff_equation_latex + "\" -o \"equation.png\"";
+	system(cmd.c_str());
+	diff_equation = LoadTexture("equation.png");
+}
+
 void handleInputs(Texture& wabbit, Vector2& pos, Vector2& vel, double& t, double& k){
-	
+
+	if (dropDownEditMode) return;
+	// if mouseClick is in the dropdown area
+	if (CheckCollisionPointRec(GetMousePosition(), dropdownRect)) {
+		return;
+	}
 	if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)){
 
 		// Set texture center to mouse position
@@ -151,6 +188,21 @@ void handleInputs(Texture& wabbit, Vector2& pos, Vector2& vel, double& t, double
 
 	if(IsKeyDown(KEY_RIGHT)){
 		k += 0.005;
+
+		static constexpr std::string_view latex_template = R"(
+		\frac{{d\mathbf{{y}}}}{{dt}} =
+		\begin{{bmatrix}}
+		- {:.3f}\, y_0 \sqrt{{y_0^2 + y_1^2}} \\\\
+		- 300 - {:.3f}\, y_1 \sqrt{{y_1^2 + y_0^2}} \\\\
+		y_0 \\\\
+		y_1
+		\end{{bmatrix}}
+		)";
+
+		diff_equation_latex = std::vformat(latex_template, std::make_format_args(k, k));
+
+		updateEquation();
+
 	} else if(IsKeyDown(KEY_LEFT)){
 		if(k >= 0.004){
 			k -= 0.005;
@@ -162,8 +214,6 @@ void handleInputs(Texture& wabbit, Vector2& pos, Vector2& vel, double& t, double
 		pos = {WIN_WIDTH/2, WIN_HEIGHT/2};
 		vel = {10, 12};
 	}
-
-	PollInputEvents();
 }
 
 void drawStuff(Texture wabbit, Vector2 pos, Vector2 vel, double& t, double& k){
@@ -177,9 +227,25 @@ void drawStuff(Texture wabbit, Vector2 pos, Vector2 vel, double& t, double& k){
 		DrawText(TextFormat("Time Speedup: %.1fx", TIME_SCALE), WIN_WIDTH - 250, WIN_HEIGHT - 50, 16, WHITE);
 	}
 	DrawText(TextFormat("Air Drag Coeff. (k): %.3f", k), WIN_WIDTH - 250, WIN_HEIGHT - 20, 18, WHITE);
-
+	
+	// Draw Equation
+	DrawTexture(diff_equation, 300, 300, WHITE);
+	
 	// Draw "Character"
 	DrawTexture(wabbit, pos.x, WIN_HEIGHT - pos.y, WHITE);
+
+	// Draw top bar with controls
+	Rectangle topBar = {0, 0, WIN_WIDTH, 40};
+	DrawRectangleRec(topBar, Fade(DARKGRAY, 0.5f));
+
+	if (GuiDropdownBox(dropdownRect, simulationList.c_str(),
+					&dropdownActive,
+					dropDownEditMode))
+	{
+		dropDownEditMode = !dropDownEditMode;
+	}
+
+	DrawText(TextFormat("Simulation: %s", simulationName[dropdownActive].c_str()), 230, 10, 20, WHITE);
 }
 
 void updatePhysics(Texture& wabbit, Vector2& pos, Vector2& vel){

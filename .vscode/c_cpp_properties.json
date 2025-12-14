@@ -42,10 +42,11 @@
                 "/System/Library/Frameworks",
                 "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk"
             ],
-            "compilerPath": "/usr/bin/clang",
+            "compilerPath": "/usr/bin/g++",
             "cStandard": "c17",
-            "cppStandard": "c++17",
-            "intelliSenseMode": "clang-x64"
+            "cppStandard": "c++23",
+            "intelliSenseMode": "clang-x64",
+            "configurationProvider": "ms-vscode.makefile-tools"
         },
         {
             "name": "Linux",
