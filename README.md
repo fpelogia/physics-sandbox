@@ -1,6 +1,6 @@
 # Physics Sandbox
 
-## [CLICK HERE TO PLAY!! 🐭 ](build_web/)
+## [CLICK HERE TO PLAY!! 🐭 ](https://fpelogia.github.io/physics-sandbox/build_web/)
 
 ## Instructions
 ### Linux
